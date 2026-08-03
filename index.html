@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Секретный архив</title>
-    <!-- Подключаем библиотеку для интеграции с ВК -->
+    <!-- ПРАВИЛЬНОЕ ПОДКЛЮЧЕНИЕ БИБЛИОТЕКИ ВК -->
     <script src="https://unpkg.com"></script>
     <style>
         body {
@@ -20,22 +20,21 @@
             user-select: none;
         }
 
-        /* Идеальная маскировка под стандартную ссылку ВКонтакте */
         .vk-link {
             background: none !important;
             border: none !important;
-            color: #2975cc !important; /* Родной синий цвет ссылок ВК */
+            color: #2975cc !important;
             text-decoration: none !important;
             font-size: 17px !important;
             font-weight: 400;
             cursor: pointer !important;
             padding: 20px !important;
             display: inline-block;
-            -webkit-tap-highlight-color: transparent; /* Убирает темное выделение на iPhone при тапе */
+            -webkit-tap-highlight-color: transparent;
         }
 
         .vk-link:active {
-            opacity: 0.7; /* Эффект зажатия как на iOS */
+            opacity: 0.7;
         }
 
         .heart-particle {
@@ -51,16 +50,16 @@
 </head>
 <body>
 
-    <!-- Ссылка-обманка. Текст внутри можете поменять на свой -->
     <button class="vk-link" id="clickBtn">Перейти к скрытому архиву</button>
 
     <script>
-        // Инициализируем связь с приложением ВК
-        vkBridge.send('VKWebAppInit');
+        // Запуск моста с ВК
+        if (typeof vkBridge !== 'undefined') {
+            vkBridge.send('VKWebAppInit');
+        }
 
         const button = document.getElementById('clickBtn');
 
-        // Обрабатываем touchstart для мгновенного отклика на iPhone
         button.addEventListener('touchstart', function(e) {
             e.preventDefault();
             triggerExplosion(e.touches[0].clientX, e.touches[0].clientY);
@@ -73,10 +72,10 @@
         function triggerExplosion(startX, startY) {
             const colors = ['#ff334b', '#ff5e7e', '#ff1a75', '#ff4d4d', '#e6005c'];
 
-            // Вызываем легкую вибрацию на iPhone через систему ВК
-            vkBridge.send('VKWebAppTapticNotificationOccurred', {type: 'success'});
+            if (typeof vkBridge !== 'undefined') {
+                vkBridge.send('VKWebAppTapticNotificationOccurred', {type: 'success'});
+            }
 
-            // Генерируем 22 летящих сердечка
             for (let i = 0; i < 22; i++) {
                 const heart = document.createElement('div');
                 heart.className = 'heart-particle';
@@ -107,4 +106,3 @@
     </script>
 </body>
 </html>
-
