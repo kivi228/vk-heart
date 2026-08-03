@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Секретный архив</title>
-    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/index.umd.js"></script>
+    <title>Секретная ссылка</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,62 +12,43 @@
 
         body {
             height: 100vh;
+            margin: 0;
+            padding: 0;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #09090b;
+            background: #0d0d11;
             color: #ffffff;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "VK Sans Display", "Roboto", sans-serif;
+            user-select: none;
         }
 
-        .card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 32px 24px;
-            border-radius: 24px;
+        .container {
             text-align: center;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
-            width: 320px;
-            max-width: 90%;
+            padding: 20px;
+            z-index: 2;
         }
 
-        h2 {
-            margin: 0 0 8px 0;
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-        }
-
-        p {
-            margin: 0 0 28px 0;
-            font-size: 14px;
-            color: #71717a;
-        }
-
-        .secret-btn {
-            background: linear-gradient(135deg, #e11d48 0%, #be123c 100%);
+        /* Замаскированная кнопка-ссылка */
+        .fake-link {
+            background: none;
             border: none;
-            color: #ffffff;
-            font-size: 15px;
+            color: #4f92ff;
+            text-decoration: underline;
+            font-size: 22px;
             font-weight: 600;
-            padding: 16px 32px;
-            border-radius: 14px;
             cursor: pointer;
-            box-shadow: 0 10px 25px rgba(225, 29, 72, 0.35);
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 15px 25px;
             outline: none;
-            width: 100%;
+            transition: color 0.2s;
         }
 
-        .secret-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+        .fake-link:active {
+            color: #ff3366;
         }
 
-        /* Стиль для частицы */
+        /* Контейнер для частиц */
         .particle {
             position: fixed;
             pointer-events: none;
@@ -79,107 +59,95 @@
 </head>
 <body>
 
-    <div class="card">
-        <h2 id="userName">Закрытый доступ</h2>
-        <p>Нажми для расшифровки содержимого</p>
-        <button class="secret-btn" id="clickBtn">Открыть секрет</button>
+    <div class="container">
+        <button class="fake-link" id="targetBtn">Скачать секретный файл</button>
     </div>
 
-    <!-- Встроенные 3D Градиенты для сердец -->
+    <!-- Векторные шаблоны сердец с 3D-градиентами -->
     <svg width="0" height="0" style="position:absolute;">
         <defs>
-            <linearGradient id="heartGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="gradRed" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%" stop-color="#ff4d6d" />
-                <stop offset="50%" stop-color="#c9184a" />
-                <stop offset="100%" stop-color="#590d22" />
+                <stop offset="50%" stop-color="#ff0055" />
+                <stop offset="100%" stop-color="#800020" />
             </linearGradient>
-            <linearGradient id="heartGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#ff85a1" />
-                <stop offset="100%" stop-color="#a4133c" />
+            <linearGradient id="gradPink" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ff9ebb" />
+                <stop offset="100%" stop-color="#ff3366" />
             </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="2" result="blur" />
-                <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
+            <linearGradient id="gradGold" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#ffea00" />
+                <stop offset="100%" stop-color="#ff6d00" />
+            </linearGradient>
         </defs>
     </svg>
 
     <script>
-        if (window.vkBridge) {
-            vkBridge.send('VKWebAppInit').catch(() => {});
-            vkBridge.send('VKWebAppGetUserInfo')
-                .then(data => {
-                    if (data && data.first_name) {
-                        document.getElementById('userName').innerText = `Привет, ${data.first_name}`;
-                    }
-                })
-                .catch(() => {});
-        }
+        const btn = document.getElementById('targetBtn');
 
-        // РЕАЛИСТИЧНЫЕ ВЕКТОРНЫЕ ЭЛЕМЕНТЫ (3D Сердце + Неоновая пыльца)
-        const heartSVG1 = `<svg width="32" height="32" viewBox="0 0 24 24" filter="url(#glow)"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#heartGrad1)"/></svg>`;
-        const heartSVG2 = `<svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#heartGrad2)"/></svg>`;
-        const sparkSVG = `<svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#ffb703"/></svg>`;
+        // Крупные варианты SVG-сердечек
+        const heartTemplates = [
+            `<svg width="45" height="45" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#gradRed)"/></svg>`,
+            `<svg width="35" height="35" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#gradPink)"/></svg>`,
+            `<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" fill="url(#gradGold)"/></svg>`
+        ];
 
-        function createExplosion(x, y) {
-            if (window.vkBridge) {
-                vkBridge.send('VKWebAppTapticImpactOccurred', { style: 'heavy' }).catch(() => {});
-            }
-
-            const count = 35; // Количество элементов
+        function explode(x, y) {
+            const count = 30; // Количество вылетающих сердец
 
             for (let i = 0; i < count; i++) {
-                const el = document.createElement('div');
-                el.className = 'particle';
+                const particle = document.createElement('div');
+                particle.className = 'particle';
                 
-                // Шанс выпадения разных типы элементов
-                const rand = Math.random();
-                if (rand > 0.6) el.innerHTML = heartSVG1;
-                else if (rand > 0.25) el.innerHTML = heartSVG2;
-                else el.innerHTML = sparkSVG;
+                // Выбираем случайный размер/цвет из шаблонов
+                particle.innerHTML = heartTemplates[Math.floor(Math.random() * heartTemplates.length)];
+                document.body.appendChild(particle);
 
-                document.body.appendChild(el);
-
-                // Физика вылета
+                // Физика разлёта
                 const angle = Math.random() * Math.PI * 2;
-                const speed = 4 + Math.random() * 10;
-                const tx = Math.cos(angle) * (60 + Math.random() * 120);
-                const ty = Math.sin(angle) * (60 + Math.random() * 120) - 30; // Легкое смещение вверх
-                const rot = (Math.random() - 0.5) * 720; // 3D Вращение
-                const scale = 0.5 + Math.random() * 0.8;
+                const speed = 5 + Math.random() * 12; // Скорость разлёта
+                const targetX = Math.cos(angle) * (80 + Math.random() * 140);
+                const targetY = Math.sin(angle) * (80 + Math.random() * 140) - 20; // Искривление траектории
+                const rotation = (Math.random() - 0.5) * 540; // Вращение
+                const scale = 0.6 + Math.random() * 0.8;
 
-                // Запуск современной плавного анимации
-                const anim = el.animate([
-                    { 
-                        transform: `translate(${x}px, ${y}px) scale(0.2) rotate(0deg)`, 
-                        opacity: 1 
+                // Запуск анимации
+                const animation = particle.animate([
+                    {
+                        transform: `translate(${x - 20}px, ${y - 20}px) scale(0.2) rotate(0deg)`,
+                        opacity: 1
                     },
-                    { 
-                        transform: `translate(${x + tx * 0.5}px, ${y + ty * 0.5}px) scale(${scale}) rotate(${rot * 0.5}deg)`, 
-                        opacity: 0.9,
-                        offset: 0.4
+                    {
+                        transform: `translate(${x + targetX * 0.5}px, ${y + targetY * 0.5}px) scale(${scale}) rotate(${rotation * 0.5}deg)`,
+                        opacity: 1,
+                        offset: 0.3
                     },
-                    { 
-                        transform: `translate(${x + tx}px, ${y + ty + 40}px) scale(0) rotate(${rot}deg)`, 
-                        opacity: 0 
+                    {
+                        transform: `translate(${x + targetX}px, ${y + targetY + 60}px) scale(0) rotate(${rotation}deg)`,
+                        opacity: 0
                     }
                 ], {
-                    duration: 700 + Math.random() * 500,
+                    duration: 800 + Math.random() * 400,
                     easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
                 });
 
-                anim.onfinish = () => el.remove();
+                animation.onfinish = () => particle.remove();
             }
         }
 
-        const btn = document.getElementById('clickBtn');
+        // Обработка касаний для мобильных
+        let lastTouch = 0;
+
+        btn.addEventListener('touchstart', (e) => {
+            lastTouch = Date.now();
+            const touch = e.touches[0];
+            explode(touch.clientX, touch.clientY);
+        }, { passive: true });
 
         btn.addEventListener('click', (e) => {
-            const rect = btn.getBoundingClientRect();
-            const x = e.clientX || (rect.left + rect.width / 2);
-            const y = e.clientY || (rect.top + rect.height / 2);
-
-            createExplosion(x, y);
+            // Предотвращаем двойной вызов если сработал touchstart
+            if (Date.now() - lastTouch < 300) return;
+            explode(e.clientX, e.clientY);
         });
     </script>
 </body>
