@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Секретный архив</title>
-    <!-- ПРАВИЛЬНОЕ ПОДКЛЮЧЕНИЕ БИБЛИОТЕКИ ВК -->
-    <script src="https://unpkg.com"></script>
+    <!-- ПРАВИЛЬНОЕ ПОДКЛЮЧЕНИЕ VK BRIDGE -->
+    <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/index.umd.js"></script>
     <style>
         body {
             height: 100vh;
@@ -25,8 +25,8 @@
             border: none !important;
             color: #2975cc !important;
             text-decoration: none !important;
-            font-size: 17px !important;
-            font-weight: 400;
+            font-size: 18px !important;
+            font-weight: 500;
             cursor: pointer !important;
             padding: 20px !important;
             display: inline-block;
@@ -34,13 +34,13 @@
         }
 
         .vk-link:active {
-            opacity: 0.7;
+            opacity: 0.6;
         }
 
         .heart-particle {
             position: fixed;
             pointer-events: none;
-            font-size: 26px;
+            font-size: 24px;
             z-index: 9999;
             transition: transform 0.7s cubic-bezier(0.1, 0.8, 0.25, 1), opacity 0.7s ease-out;
             opacity: 1;
@@ -50,37 +50,29 @@
 </head>
 <body>
 
-    <button class="vk-link" id="clickBtn">Перейти к скрытому архиву</button>
+    <button class="vk-link" id="clickBtn">Перейти к скрытому контенту</button>
 
     <script>
-        // Запуск моста с ВК
-        if (typeof vkBridge !== 'undefined') {
-            vkBridge.send('VKWebAppInit');
+        // Инициализация VK Bridge (с проверкой, чтобы не падать вне приложения ВК)
+        if (window.vkBridge) {
+            vkBridge.send('VKWebAppInit').catch(() => {});
         }
 
         const button = document.getElementById('clickBtn');
 
-        button.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            triggerExplosion(e.touches[0].clientX, e.touches[0].clientY);
-        });
-
-        button.addEventListener('click', function(e) {
-            triggerExplosion(e.clientX, e.clientY);
-        });
-
         function triggerExplosion(startX, startY) {
-            const colors = ['#ff334b', '#ff5e7e', '#ff1a75', '#ff4d4d', '#e6005c'];
-
-            if (typeof vkBridge !== 'undefined') {
-                vkBridge.send('VKWebAppTapticNotificationOccurred', {type: 'success'});
+            // Вибрация на смартфонах внутри ВК
+            if (window.vkBridge) {
+                vkBridge.send('VKWebAppTapticNotificationOccurred', {type: 'success'}).catch(() => {});
             }
+
+            const colors = ['#ff334b', '#ff5e7e', '#ff1a75', '#ff4d4d', '#e6005c'];
 
             for (let i = 0; i < 22; i++) {
                 const heart = document.createElement('div');
                 heart.className = 'heart-particle';
                 heart.innerText = '❤️';
-                
+
                 heart.style.left = startX + 'px';
                 heart.style.top = startY + 'px';
                 heart.style.color = colors[Math.floor(Math.random() * colors.length)];
@@ -89,7 +81,7 @@
                 document.body.appendChild(heart);
 
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 40 + Math.random() * 140;
+                const distance = 40 + Math.random() * 130;
                 const targetX = Math.cos(angle) * distance;
                 const targetY = Math.sin(angle) * distance;
 
@@ -103,6 +95,23 @@
                 }, 700);
             }
         }
+
+        // Адекватная обработка тапов для iOS/Android без двойного срабатывания
+        let isTouched = false;
+
+        button.addEventListener('touchstart', function(e) {
+            isTouched = true;
+            const touch = e.touches[0];
+            triggerExplosion(touch.clientX, touch.clientY);
+        }, { passive: true });
+
+        button.addEventListener('click', function(e) {
+            if (isTouched) {
+                isTouched = false;
+                return;
+            }
+            triggerExplosion(e.clientX, e.clientY);
+        });
     </script>
 </body>
 </html>
